@@ -27,7 +27,6 @@ public class HuffmanEncoderTest {
         assertThat(nodePriorityQueue.poll().getFrequency()).isEqualTo(10);
     }
 
-
     @Test
     public void testString() {
         PriorityQueue<Node> nodePriorityQueue = new PriorityQueue<>();
@@ -44,5 +43,19 @@ public class HuffmanEncoderTest {
         assertThat(nodePriorityQueue.poll().getFrequency()).isEqualTo(1);
         assertThat(nodePriorityQueue.poll().getFrequency()).isEqualTo(2);
         assertThat(nodePriorityQueue.poll().getFrequency()).isEqualTo(5);
+    }
+
+    @Test
+    public void testTree() {
+        String testString = "the quick brown fox jumped over the lazy dog.";
+        byte[] bytes = testString.getBytes();
+        Node node = HuffmanEncoder.createTree(HuffmanEncoder.createInitialTreeElements(HuffmanEncoder.createFrequencyMap(bytes)));
+        Map<Byte, String> map = HuffmanEncoder.createSymbolToCodeMap(node);
+        String encodedString = HuffmanEncoder.encode(testString, map);
+        int l = encodedString.length();
+        Byte[] encodedArray = HuffmanEncoder.toByteArray(encodedString);
+        String decodedString = HuffmanEncoder.decode(encodedArray, node, l);
+        System.out.println(decodedString);
+
     }
 }
