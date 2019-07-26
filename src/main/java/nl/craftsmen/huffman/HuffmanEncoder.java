@@ -93,9 +93,12 @@ public class HuffmanEncoder {
         return map;
     }
 
-
-
-
+    /**
+     * Compresses a string to a sequence of bits by looking up each byte in the huffman tree.
+     * @param testString the string
+     * @param map a mapping from each byte value to the Huffman coding in bits.
+     * @return
+     */
     public static String encode(final String testString, final Map<Byte, String> map) {
         String encodedString = "";
         for (int i = 0; i < testString.length(); i++) {
@@ -106,6 +109,12 @@ public class HuffmanEncoder {
 
     }
 
+    /**
+     * Converts a string respresenting a sequence of bits into a byte array.
+     * For example, the string 0000001100000100 converts to [3,4].
+     * @param encodedString
+     * @return
+     */
     public static Byte[] toByteArray(final String encodedString) {
         int rest = encodedString.length() % 8;
         final String paddedString = encodedString + "0".repeat(8 - rest);
@@ -116,6 +125,13 @@ public class HuffmanEncoder {
         return encodedBytes;
     }
 
+    /**
+     * Decompresses the Huffman-encoded byte array using the Huffman tree and the length of the compressed bitstream.
+     * @param encodedArray
+     * @param rootNode
+     * @param stringLength
+     * @return
+     */
     public static String decode(final Byte[] encodedArray, final Node rootNode, final int stringLength) {
         Node node = rootNode;
         String decodedString = "";
