@@ -5,9 +5,9 @@ package nl.craftsmen.huffman;
  */
 public class EncodingResult {
 
-    private Byte[] compressedData;
-    private int encodingLength;
-    private Node huffmanTree;
+    private final Byte[] compressedData;
+    private final int encodingLength;
+    private final Node huffmanTree;
 
     public EncodingResult(final Byte[] compressedData, final int encodingLength, final Node huffmanTree) {
         this.compressedData = compressedData;
