@@ -2,7 +2,7 @@
 
 This project demonstrates how Huffman compression and decompression works.
 
-This project is partly based on the specifications explained in this article:
+This project is partly based on the explanation explained in this article:
 
 https://www.techiedelight.com/huffman-coding/
 
@@ -34,3 +34,9 @@ After this, you end up with:
 - a Huffman tree
 - the length of the compressed byte stream (in bits)
 - The compressed byte stream
+
+### Decompression
+1. Walk through the Huffman tree using the bits in the compressed byte stream. 0 means take a left turn, 1 means take a right turn.
+    1. If you encounter a leaf node with a byte value, add that value to the decompressed byte stream.
+    2. Go back to the root of the Huffman tree.
+2. Repeat until you reach the end of the compressed byte stream.   
