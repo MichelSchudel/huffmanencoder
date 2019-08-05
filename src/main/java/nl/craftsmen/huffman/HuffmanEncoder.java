@@ -19,12 +19,14 @@ class HuffmanEncoder {
      * @return an encoding result containing the compressed byte array, along with the Huffman tree needed for decoding.
      */
     static EncodingResult compress(byte[] data) {
-        Node huffmanTreeRootNode = HuffmanEncoder.createTree(HuffmanEncoder.createInitialTreeElements(HuffmanEncoder.createFrequencyMap(data)));
-        Map<Byte, String> map = HuffmanEncoder.createSymbolToCodeMap(huffmanTreeRootNode);
-        String encodedString = HuffmanEncoder.encode(data, map);
-        int l = encodedString.length();
-        Byte[] encodedArray = HuffmanEncoder.toByteArray(encodedString);
-        return new EncodingResult(encodedArray, l, huffmanTreeRootNode);
+        final Map<Byte, Integer> frequencyMap = HuffmanEncoder.createFrequencyMap(data);
+        final PriorityQueue<Node> initialTreeElements = HuffmanEncoder.createInitialTreeElements(frequencyMap);
+        Node huffmanTreeRootNode = HuffmanEncoder.createTree(initialTreeElements);
+        Map<Byte, String> symbolToCodeMap = HuffmanEncoder.createSymbolToCodeMap(huffmanTreeRootNode);
+        String compressedDataBitString = HuffmanEncoder.encodeToBitString(data, symbolToCodeMap);
+        int compressedDataBitLength = compressedDataBitString.length();
+        Byte[] encodedArray = HuffmanEncoder.toByteArray(compressedDataBitString);
+        return new EncodingResult(encodedArray, compressedDataBitLength, huffmanTreeRootNode);
     }
 
     /**
@@ -121,7 +123,7 @@ class HuffmanEncoder {
      * @param map  a mapping from each byte value to the Huffman coding in bits.
      * @return a string respresenting a sequence of bits, like "0111011011011001"
      */
-    private static String encode(final byte[] data, final Map<Byte, String> map) {
+    private static String encodeToBitString(final byte[] data, final Map<Byte, String> map) {
         StringBuilder encodedStringBuilder = new StringBuilder();
         for (byte b : data) {
             encodedStringBuilder.append(map.get(b));
@@ -153,7 +155,7 @@ class HuffmanEncoder {
      */
     static byte[] decompress(EncodingResult encodingResult) {
         String binaryString = convertByteArrayToBinaryString(encodingResult.getCompressedData());
-        String trimmedBinaryString = binaryString.substring(0, encodingResult.getEncodingLength());
+        String trimmedBinaryString = binaryString.substring(0, encodingResult.getCompressedDataBitLength());
         return decode(encodingResult.getHuffmanTree(), trimmedBinaryString);
     }
 

@@ -6,12 +6,12 @@ package nl.craftsmen.huffman;
 public class EncodingResult {
 
     private final Byte[] compressedData;
-    private final int encodingLength;
+    private final int compressedDataBitLength;
     private final Node huffmanTree;
 
-    public EncodingResult(final Byte[] compressedData, final int encodingLength, final Node huffmanTree) {
+    public EncodingResult(final Byte[] compressedData, final int compressedDataBitLength, final Node huffmanTree) {
         this.compressedData = compressedData;
-        this.encodingLength = encodingLength;
+        this.compressedDataBitLength = compressedDataBitLength;
         this.huffmanTree = huffmanTree;
     }
 
@@ -28,8 +28,8 @@ public class EncodingResult {
      * For example, the bitstream 10100000 with encoding length 4 returns two bytes (encoded by 10 and 10). The last 4 bits are padding.
      * @return the encoding length
      */
-    public int getEncodingLength() {
-        return encodingLength;
+    public int getCompressedDataBitLength() {
+        return compressedDataBitLength;
     }
 
     /**
