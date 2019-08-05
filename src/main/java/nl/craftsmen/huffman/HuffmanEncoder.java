@@ -3,8 +3,10 @@ package nl.craftsmen.huffman;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 
 class HuffmanEncoder {
 
@@ -19,18 +21,33 @@ class HuffmanEncoder {
      * @return an encoding result containing the compressed byte array, along with the Huffman tree needed for decoding.
      */
     static EncodingResult compress(byte[] data) {
+
+        // create a map that maps each occuring byte value to its frequency in the array
         final Map<Byte, Integer> frequencyMap = HuffmanEncoder.createFrequencyMap(data);
+
+        //create a priority queue, with a node for each entry in the map
         final PriorityQueue<Node> initialTreeElements = HuffmanEncoder.createInitialTreeElements(frequencyMap);
+
+        //construct the Huffman tree, see the algorithm in the readme for an explanation.
         Node huffmanTreeRootNode = HuffmanEncoder.createTree(initialTreeElements);
+
+        //create a map that maps each occuring byte value to its Huffman code, using the Huffman tree.
         Map<Byte, String> symbolToCodeMap = HuffmanEncoder.createSymbolToCodeMap(huffmanTreeRootNode);
+
+        //encode the data using the symbol-to-code map
         String compressedDataBitString = HuffmanEncoder.encodeToBitString(data, symbolToCodeMap);
+
         int compressedDataBitLength = compressedDataBitString.length();
-        Byte[] encodedArray = HuffmanEncoder.toByteArray(compressedDataBitString);
+
+        //convert the binary string to a byte array
+        Byte[] encodedArray = HuffmanEncoder.convertBinaryStringToByteArray(compressedDataBitString);
+
+        //store all information in a handy wrapper
         return new EncodingResult(encodedArray, compressedDataBitLength, huffmanTreeRootNode);
     }
 
     /**
-     * Giving an array of bytes, creates a map where the kys are the unique byte values in the array, and the value the number of occurences of that byte in the array.
+     * Giving an array of bytes, creates a map where the keys are the unique byte values in the array, and the value the number of occurences of that byte in the array.
      * For example , the array [0, 0, 1, 2, 1] will result in a map with key value pairs: [{0,2}, {1,2}, {2,1}]
      *
      * @param input the byte array
@@ -48,7 +65,7 @@ class HuffmanEncoder {
     /**
      * For each entry in the byteFrequencyMap, create a Node object containing the byte value and frequency,
      * and put that node in a PriorityQueue.
-     * The natural ordering of Nodes is determind by the frequency value. A node is "less" than another node when its frequency is higher
+     * The natural ordering of Nodes is determined by the frequency value. A node is "less" than another node when its frequency is higher
      * than the frequency of the other node.
      * <p>
      * For example, the map [{0,2}, {1,2}, {2,1}] will result in three Node objects:
@@ -138,7 +155,7 @@ class HuffmanEncoder {
      *
      * @return the byte array.
      */
-    private static Byte[] toByteArray(final String encodedString) {
+    private static Byte[] convertBinaryStringToByteArray(final String encodedString) {
         int rest = encodedString.length() % 8;
         final String paddedString = encodedString + "0".repeat(8 - rest);
         String[] split = paddedString.split("(?<=\\G.{8})");
@@ -154,23 +171,46 @@ class HuffmanEncoder {
      * @return the decompressed
      */
     static byte[] decompress(EncodingResult encodingResult) {
-        String binaryString = convertByteArrayToBinaryString(encodingResult.getCompressedData());
-        String trimmedBinaryString = binaryString.substring(0, encodingResult.getCompressedDataBitLength());
-        return decode(encodingResult.getHuffmanTree(), trimmedBinaryString);
+
+        //convert the compressed byte array to a bit string
+        String paddedCompressedDataBitString = convertByteArrayToBinaryString(encodingResult.getCompressedData());
+        String compressedDataBitString = paddedCompressedDataBitString.substring(0, encodingResult.getCompressedDataBitLength());
+
+        //decode the bit string
+        return decode(encodingResult.getHuffmanTree(), compressedDataBitString);
+    }
+
+    /**
+     * Convert byte array into binary String. For example, [3,4] yields "0000001100000100".
+     *
+     * @param compressedData the compressed data.
+     * @return the binary string.
+     */
+    private static String convertByteArrayToBinaryString(final Byte[] compressedData) {
+        StringBuilder stringBuilder = new StringBuilder(compressedData.length * 2);
+        List<String> bytes =  Arrays.stream(compressedData)
+                .map(b -> String.format("%8s", Integer.toBinaryString(b & 0xFF))
+                        .replace(' ', '0')).collect(Collectors.toList());
+        bytes.forEach(e -> stringBuilder.append(e));
+        return stringBuilder.toString();
     }
 
     /**
      * Decompresses the trimmed binary string back to the original using the huffman tree.
      *
      * @param huffmanRootNode the root node of the huffman tree.
-     * @param trimmedBinaryString the binary string representing a compressed huffman encoding.
+     * @param compressedDataBitString the binary string representing a compressed huffman encoding.
      * @return the original, decompressed, data.
      */
-    private static byte[] decode(final Node huffmanRootNode, final String trimmedBinaryString) {
+    private static byte[] decode(final Node huffmanRootNode, final String compressedDataBitString) {
         Node node = huffmanRootNode;
         ByteArrayOutputStream byteArrayOutputStreams = new ByteArrayOutputStream();
-        for (int i = 0; i < trimmedBinaryString.length(); i++) {
-            if (trimmedBinaryString.charAt(i) == '0') {
+
+        //traverse the Huffman tree for each bit in the bit string, stop when a leaf node is found.
+        //the value of this node is an original byte value.
+        //repeat until the end of the compressed data bit string is reached.
+        for (int i = 0; i < compressedDataBitString.length(); i++) {
+            if (compressedDataBitString.charAt(i) == '0') {
                 node = node.getLeft();
             } else {
                 node = node.getRight();
@@ -181,18 +221,5 @@ class HuffmanEncoder {
             }
         }
         return byteArrayOutputStreams.toByteArray();
-    }
-
-    /**
-     * Convert byte array into binary String. For example, [3,4] yields "0000001100000100".
-     *
-     * @param compressedData the compressed data.
-     * @return the binary string.
-     */
-    private static String convertByteArrayToBinaryString(final Byte[] compressedData) {
-        return Arrays.stream(compressedData)
-                .map(b -> String.format("%8s", Integer.toBinaryString(b & 0xFF))
-                        .replace(' ', '0'))
-                .reduce("", (accumulatedString, newCharacter) -> accumulatedString + newCharacter);
     }
 }
