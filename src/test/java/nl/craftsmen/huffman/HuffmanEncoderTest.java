@@ -10,7 +10,7 @@ import org.junit.Test;
 public class HuffmanEncoderTest {
 
     @Test
-    public void testHuffmanEncodingAndDecoding() {
+    public void compress_small_string() {
         String testString = "the quick brown fox jumped over the lazy dog.";
         System.out.println("original string: " + testString);
         byte[] bytes = testString.getBytes();
@@ -28,17 +28,19 @@ public class HuffmanEncoderTest {
     }
 
     @Test
-    public void read_lotr() throws URISyntaxException, IOException {
+    public void compress_the_lord_of_the_rings() throws URISyntaxException, IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(getClass().getResource("/lotr.txt").toURI()));
 
-        //compress the string
+        //compress the data
         EncodingResult encodingResult = HuffmanEncoder.compress(bytes);
 
         double originalLength = bytes.length;
+        System.out.println("original length: " + originalLength);
         double compressedLength = encodingResult.getCompressedData().length;
         System.out.println("compression ratio: " + ((compressedLength / originalLength) * 100) + "% of original data.");
-        //decompress the string
+        //decompress the data
         byte[] decompressedBytes = HuffmanEncoder.decompress(encodingResult);
+        System.out.println("decompressed length: " + (double) decompressedBytes.length);
 
 
     }
