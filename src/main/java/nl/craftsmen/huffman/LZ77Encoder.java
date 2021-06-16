@@ -45,17 +45,10 @@ public class LZ77Encoder {
 
     public String decode(List<LZ77Triple> lz77Triples) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (LZ77Triple lz77Triple: lz77Triples) {
-            int offset = lz77Triple.getOffset();
-            int length = lz77Triple.getLength();
-            int startingPosition = stringBuilder.length() - offset;
-            String s;
-            if (startingPosition < stringBuilder.length()) {
-                s = stringBuilder.substring(startingPosition, startingPosition + length);
-            } else {
-                s = "";
-            }
-            stringBuilder.append(s);
+        for (LZ77Triple lz77Triple : lz77Triples) {
+            int startingPosition = stringBuilder.length() - lz77Triple.getOffset();
+            String pattern = stringBuilder.substring(startingPosition, startingPosition + lz77Triple.getLength());
+            stringBuilder.append(pattern);
             stringBuilder.append(lz77Triple.getCharacter());
         }
         return stringBuilder.toString();

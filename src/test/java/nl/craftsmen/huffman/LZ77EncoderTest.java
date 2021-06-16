@@ -8,11 +8,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LZ77EncoderTest {
 
+    private static final String INPUT = "ababcbababaa";
     private final LZ77Encoder lz77Encoder = new LZ77Encoder();
 
     @Test
     public void testLz77() {
-        List<LZ77Triple> result = lz77Encoder.encode("ababcbababaa");
+        List<LZ77Triple> result = lz77Encoder.encode(INPUT);
         System.out.println(result);
         assertThat(result).containsExactly(
                 buildLZ77triple(0,0,'a'),
@@ -24,7 +25,7 @@ public class LZ77EncoderTest {
 
         );
         String s= lz77Encoder.decode(result);
-        assertThat(s).isEqualTo("ababcbababaa");
+        assertThat(s).isEqualTo(INPUT);
     }
 
     private LZ77Triple buildLZ77triple(int o, int l, char c) {
