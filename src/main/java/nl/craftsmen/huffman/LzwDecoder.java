@@ -27,14 +27,14 @@ public class LzwDecoder {
             short next = data[i];
             if (!map.containsKey(next)) {
                 String s = map.get(old);
-                s = s +
+                s = s + "";
             } else {
                 String s = map.get(next);
                 output.write(s.getBytes());
             }
             i++;
         }
-
+        return null;
 
     }
 
