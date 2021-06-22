@@ -2,10 +2,8 @@ package nl.craftsmen.huffman;
 
 import lombok.*;
 
-@Getter
+@Value
 @Builder
-@EqualsAndHashCode
-@ToString
 public class LZ77Triple {
 
     private final int offset;

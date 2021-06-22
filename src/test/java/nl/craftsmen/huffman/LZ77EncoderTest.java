@@ -2,6 +2,11 @@ package nl.craftsmen.huffman;
 
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +38,15 @@ public class LZ77EncoderTest {
                 .offset(o)
                 .length(l)
                 .character(c).build();
+    }
+
+    @Test
+    public void large_file() throws URISyntaxException, IOException {
+        URL resource = getClass().getResource("/mediumfile.txt");
+        String input = Files.readString(Paths.get(resource.toURI()));
+        List<LZ77Triple> list =  lz77Encoder.encode(input);
+        String result = lz77Encoder.decode(list);
+        System.out.println(result);
     }
 
 }

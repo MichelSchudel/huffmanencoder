@@ -12,7 +12,7 @@ public class LZ77Encoder {
             boolean found = false;
             String searchBuffer = input.substring(0, currentPosition);
             for (int i = input.length(); i > currentPosition; i--) {
-                String pattern = input.substring(currentPosition, i);
+                String pattern = input.substring(currentPosition, i - 1);
                 if (searchBuffer.contains(pattern)) {
                     found = true;
                     int index = searchBuffer.lastIndexOf(pattern);
@@ -24,6 +24,7 @@ public class LZ77Encoder {
                             .length(length)
                             .character(c).build();
                     lz77Triples.add(lZ77Triple);
+                    LZ77StateRenderer.renderState(input, currentPosition + pattern.length(), lz77Triples.get(lz77Triples.size() - 1));
                     currentPosition = currentPosition + pattern.length() + 1;
                     break;
                 }
@@ -35,6 +36,7 @@ public class LZ77Encoder {
                         .length(0)
                         .character(input.charAt(currentPosition)).build();
                 lz77Triples.add(lZ77Triple);
+                LZ77StateRenderer.renderState(input, currentPosition, lz77Triples.get(lz77Triples.size() - 1));
                 currentPosition = currentPosition + 1;
             }
             found = false;
@@ -44,13 +46,18 @@ public class LZ77Encoder {
     }
 
     public String decode(List<LZ77Triple> lz77Triples) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (LZ77Triple lz77Triple : lz77Triples) {
-            int startingPosition = stringBuilder.length() - lz77Triple.getOffset();
-            String pattern = stringBuilder.substring(startingPosition, startingPosition + lz77Triple.getLength());
-            stringBuilder.append(pattern);
-            stringBuilder.append(lz77Triple.getCharacter());
-        }
-        return stringBuilder.toString();
+        return
+                lz77Triples.stream()
+                        .reduce(new StringBuilder(), this::mapTriple, StringBuilder::append).toString();
+
     }
+
+    private StringBuilder mapTriple(StringBuilder sb, LZ77Triple triple) {
+        int startingPosition = sb.length() - triple.getOffset();
+        String pattern = sb.substring(startingPosition, startingPosition + triple.getLength());
+        sb.append(pattern);
+        sb.append(triple.getCharacter());
+        return sb;
+    }
+
 }
